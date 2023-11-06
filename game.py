@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # initialize Pygame
 pygame.init()
@@ -14,7 +15,7 @@ SCALE_FACTOR = 1
 # load an image for the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 blue_snow = pygame.image.load("ski_assets/ski_images/tile_0027.png").convert()
-
+tree = pygame.image.load("ski_assets/ski_images/tile_0006.png").convert()
 background = screen.copy()
 
 
@@ -30,6 +31,10 @@ def draw_background():
                                         TILE_SIZE * SCALE_FACTOR * j))
             background.blit(blue_snow, (x_left - TILE_SIZE * SCALE_FACTOR * (i + 1),
                                         TILE_SIZE * SCALE_FACTOR * j))
+    for _ in range(12):
+        x = random.randint(0, SCREEN_WIDTH)
+        y = random.randint(0, SCREEN_HEIGHT)
+        background.blit(tree, (x, y))
 
 
 draw_background()
