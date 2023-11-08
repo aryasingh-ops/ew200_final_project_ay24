@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../chomp/.idea/chomp.iml" filepath="$PROJECT_DIR$/../chomp/.idea/chomp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/ew200_final_project_ay24.iml" filepath="$PROJECT_DIR$/.idea/ew200_final_project_ay24.iml" />
     </modules>
   </component>
