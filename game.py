@@ -1,7 +1,7 @@
 import pygame
 import sys
+import skier
 import random
-import skiboi
 from settings import *
 
 # initialize Pygame
@@ -9,13 +9,13 @@ pygame.init()
 
 # load an image for the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+background = screen.copy()
 blue_snow = pygame.image.load("ski_assets/ski_images/tile_0027.png").convert()
 tree = pygame.image.load("ski_assets/ski_images/tile_0006.png").convert()
-red_flag = pygame.image.load("ski_assets/ski_images/tile_0035.png")
-blue_blocker = pygame.image.load("ski_assets/ski_images/tile_0033.png")
-snowman = pygame.image.load("ski_assets/ski_images/tile_0069.png")
-background = screen.copy()
-my_skier = skiboi.SkiBoi(100, 100)
+red_flag = pygame.image.load("ski_assets/ski_images/tile_0035.png").convert()
+blue_blocker = pygame.image.load("ski_assets/ski_images/tile_0033.png").convert()
+snowman = pygame.image.load("ski_assets/ski_images/tile_0069.png").convert()
+my_skier = skier.SkiBoi(350, 20)
 
 
 def draw_background():
@@ -61,8 +61,15 @@ while True:
                 my_skier.moving_left = True
             if event.key == pygame.K_RIGHT:
                 my_skier.moving_right = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                my_skier.moving_left = False
+            if event.key == pygame.K_RIGHT:
+                my_skier.moving_right = False
+
     # draw and display screen
     my_skier.update()
     screen.blit(background, (0, 0))
+    my_skier.draw(screen)
     pygame.display.update()
     pygame.display.flip()
