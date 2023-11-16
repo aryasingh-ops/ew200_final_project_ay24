@@ -13,7 +13,16 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 background = screen.copy()
 blue_snow = pygame.image.load("ski_assets/ski_images/tile_0027.png").convert()
 
-my_skier = skier.SkiBoi(350, 20)
+full_health = pygame.image.load("ski_assets/ski_images/corazon.png").convert()
+full_health.set_colorkey((0, 0, 0))
+new_size = (50 * SCALE_FACTOR, 55 * SCALE_FACTOR)
+full_health_resized = pygame.transform.scale(full_health, new_size)
+heart_positions = [(0, 35), (35, 35), (70, 35)]
+num_hearts = len(heart_positions)
+
+game_font = pygame.font.Font("ski_assets/ski_fonts/Print.ttf", 36)
+
+my_skier = skier.SkiBoi(SKIER_WIDTH, SKIER_HEIGHT)
 my_trees = Tree(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
 trees.add(my_trees)
 for _ in range(NUM_TREES):
@@ -55,7 +64,7 @@ draw_background()
 clock = pygame.time.Clock()
 # main game loop
 while True:
-    # quit game
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -65,12 +74,20 @@ while True:
                 my_skier.moving_left = True
             if event.key == pygame.K_RIGHT:
                 my_skier.moving_right = True
+            if event.key == pygame.K_UP:
+                my_skier.moving_up = True
+            if event.key == pygame.K_DOWN:
+                my_skier.moving_down = True
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 my_skier.moving_left = False
             if event.key == pygame.K_RIGHT:
                 my_skier.moving_right = False
-
+            if event.key == pygame.K_UP:
+                my_skier.moving_up = False
+            if event.key == pygame.K_DOWN:
+                my_skier.moving_down = False
+        clock.tick(60)
     # draw and display screen
     my_skier.update()
     screen.blit(background, (0, 0))
@@ -99,6 +116,70 @@ while True:
     if random.randint(0, 100) < 5:  # Adjust the probability as needed
         new_snowman = Snowman(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
         my_snowman.add(snowman)
+
+    score_points = pygame.sprite.spritecollide(my_skier, snowman, True)
+    SCORE += len(score_points)
+    if len(score_points) > 0:
+        print(f" You hit a snowman! Your score is {SCORE}!")
+
+    hit_trees = pygame.sprite.spritecollide(my_skier, trees, False)
+    for tree in hit_trees:
+        if my_skier.rect.colliderect(tree.rect):
+            if my_skier.x < tree.rect.centerx:
+                my_skier.x -= my_skier.velocity
+            else:
+                my_skier.x += my_skier.velocity
+            if my_skier.y < tree.rect.centery:
+                my_skier.y -= my_skier.velocity
+            else:
+                my_skier.y += my_skier.velocity
+
+    if len(hit_trees) > 0:
+        print(f'You hit a tree! You are down a life')
+
+    hit_flags = pygame.sprite.spritecollide(my_skier, flags, False)
+    for flag in hit_flags:
+        if my_skier.rect.colliderect(flag.rect):
+            if my_skier.x < flag.rect.centerx:
+                my_skier.x -= my_skier.velocity
+            else:
+                my_skier.x += my_skier.velocity
+            if my_skier.y < flag.rect.centery:
+                my_skier.y -= my_skier.velocity
+            else:
+                my_skier.y += my_skier.velocity
+    if len(hit_flags) > 0:
+        print(f'You hit a flag! You are down a life')
+
+    hit_blocks = pygame.sprite.spritecollide(my_skier, blue_block, False)
+    for block in hit_blocks:
+        if my_skier.rect.colliderect(block.rect):
+            if my_skier.x < block.rect.centerx:
+                my_skier.x -= my_skier.velocity
+            else:
+                my_skier.x += my_skier.velocity
+            if my_skier.y < block.rect.centery:
+                my_skier.y -= my_skier.velocity
+            else:
+                my_skier.y += my_skier.velocity
+    if len(hit_blocks) > 0:
+        print(f'You hit a block! You are down a life')
+
+    total_hits = len(hit_trees) + len(hit_blocks) + len(hit_flags)
+
+    score_text = game_font.render(f"SCORE: {SCORE}", True, (39, 48, 145))
+    screen.blit(score_text, (10, 10))
+    for heart in range(num_hearts):
+        if heart < num_hearts:
+            screen.blit(full_health_resized, heart_positions[heart])
+
+    if total_hits >= 2:  # Adjust the threshold as needed
+        num_hearts -= 1
+        total_hits = 0  # Reset total_hits
+        if num_hearts < 0:
+            num_hearts = 0  # Ensure num_hearts doesn't go negative
+            pygame.quit()
+            sys.exit()
 
     clock.tick(60)
     pygame.display.update()
