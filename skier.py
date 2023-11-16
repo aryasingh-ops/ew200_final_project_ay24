@@ -15,14 +15,14 @@ class SkiBoi(pygame.sprite.Sprite):
 
     def update(self):
         if self.moving_left:
-            self.x -= 0.5
+            self.x -= 10
         elif self.moving_right:
-            self.x += 0.5
+            self.x += 10
         self.rect.center = (self.x, self.y)
         if self.rect.left < OUTBOUND_WIDTH:
             self.rect.left = OUTBOUND_WIDTH
-        if self.rect.right > SCREEN_WIDTH-OUTBOUND_WIDTH:
-            self.rect.right = SCREEN_WIDTH-OUTBOUND_WIDTH
+        if self.rect.right > SCREEN_WIDTH - OUTBOUND_WIDTH:
+            self.rect.right = SCREEN_WIDTH - OUTBOUND_WIDTH
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

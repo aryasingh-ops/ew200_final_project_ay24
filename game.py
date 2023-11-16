@@ -1,5 +1,6 @@
 import pygame
 import sys
+from obstacle import Tree, trees, RedFlag, flags, BlueBlocker, blue_block, Snowman, snowman
 import skier
 import random
 from settings import *
@@ -11,11 +12,29 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 background = screen.copy()
 blue_snow = pygame.image.load("ski_assets/ski_images/tile_0027.png").convert()
-tree = pygame.image.load("ski_assets/ski_images/tile_0006.png").convert()
-red_flag = pygame.image.load("ski_assets/ski_images/tile_0035.png").convert()
-blue_blocker = pygame.image.load("ski_assets/ski_images/tile_0033.png").convert()
-snowman = pygame.image.load("ski_assets/ski_images/tile_0069.png").convert()
+
 my_skier = skier.SkiBoi(350, 20)
+my_trees = Tree(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
+trees.add(my_trees)
+for _ in range(NUM_TREES):
+    trees.add(Tree(random.randint(0, SCREEN_WIDTH),
+                   random.randint(0, SCREEN_HEIGHT), SPEED))
+my_flags = RedFlag(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), random.randint(0, SCREEN_HEIGHT),
+                   SPEED)
+flags.add(my_flags)
+for _ in range(NUM_FLAGS):
+    flags.add(RedFlag(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH),
+                      random.randint(0, SCREEN_HEIGHT), SPEED))
+my_blocks = BlueBlocker(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
+blue_block.add(my_blocks)
+for _ in range(NUM_BLOCKS):
+    blue_block.add(BlueBlocker(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH),
+                               random.randint(0, SCREEN_HEIGHT), SPEED))
+my_snowman = Snowman(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
+snowman.add(my_snowman)
+for _ in range(NUM_SNOWMAN):
+    snowman.add(Snowman(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH),
+                        random.randint(0, SCREEN_HEIGHT), SPEED))
 
 
 def draw_background():
@@ -30,25 +49,10 @@ def draw_background():
                                         TILE_SIZE * SCALE_FACTOR * j))
             background.blit(blue_snow, (x_left - TILE_SIZE * SCALE_FACTOR * (i + 1),
                                         TILE_SIZE * SCALE_FACTOR * j))
-    for _ in range(15):
-        x = random.randint(0, SCREEN_WIDTH)
-        y = random.randint(0, SCREEN_HEIGHT)
-        background.blit(tree, (x, y))
-    for _ in range(5):
-        x = random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH)
-        y = random.randint(0, SCREEN_HEIGHT)
-        background.blit(red_flag, (x, y))
-    for _ in range(5):
-        x = random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH)
-        y = random.randint(0, SCREEN_HEIGHT)
-        background.blit(blue_blocker, (x, y))
-    for _ in range(4):
-        x = random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH)
-        y = random.randint(0, SCREEN_HEIGHT)
-        background.blit(snowman, (x, y))
 
 
 draw_background()
+clock = pygame.time.Clock()
 # main game loop
 while True:
     # quit game
@@ -71,5 +75,31 @@ while True:
     my_skier.update()
     screen.blit(background, (0, 0))
     my_skier.draw(screen)
+
+    trees.draw(screen)
+    trees.update()
+    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+        new_trees = Tree(random.randint(0, SCREEN_WIDTH), SCREEN_HEIGHT, SPEED)
+        my_trees.add(trees)
+
+    flags.draw(screen)
+    flags.update()
+    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+        new_flags = RedFlag(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
+        my_flags.add(flags)
+
+    blue_block.draw(screen)
+    blue_block.update()
+    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+        new_blocks = BlueBlocker(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
+        my_blocks.add(blue_block)
+
+    snowman.draw(screen)
+    snowman.update()
+    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+        new_snowman = Snowman(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
+        my_snowman.add(snowman)
+
+    clock.tick(60)
     pygame.display.update()
     pygame.display.flip()
