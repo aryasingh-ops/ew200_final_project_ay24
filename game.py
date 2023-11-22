@@ -20,6 +20,11 @@ full_health_resized = pygame.transform.scale(full_health, new_size)
 heart_positions = [(0, 35), (35, 35), (70, 35)]
 num_hearts = len(heart_positions)
 
+home_button = pygame.image.load("ski_assets/ski_images/HomeButton.png").convert()
+home_button.set_colorkey((0, 0, 0))
+new_size_home = (50 * SCALE_FACTOR, 55 * SCALE_FACTOR)
+home_resized = pygame.transform.scale(home_button, new_size)
+
 game_font = pygame.font.Font("ski_assets/ski_fonts/Print.ttf", 36)
 
 my_skier = skier.SkiBoi(SKIER_WIDTH, SKIER_HEIGHT)
@@ -64,6 +69,7 @@ draw_play_background()
 clock = pygame.time.Clock()
 
 # main game loop
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -172,6 +178,23 @@ while True:
     for heart in range(num_hearts):
         if heart < num_hearts:
             screen.blit(full_health_resized, heart_positions[heart])
+
+    paused = False
+    home = game_font.render("settings", True, (39, 48, 145))
+    screen.blit(home, (10, 85))
+    screen.blit(home_resized, (10, 115))
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            button_rect = home_resized.get_rect(topleft=(10, 115))
+
+            if button_rect.collidepoint(mouse_pos):
+                if not paused:
+                    pygame.time.wait(1000)
+                    print("Game Paused")
+                else:
+                    print("Game Resumed")
+                paused = not paused  # Toggle the pause state
 
     if total_hits >= 2:  # Adjust the threshold as needed
         num_hearts -= 1
