@@ -46,7 +46,7 @@ for _ in range(NUM_SNOWMAN):
                         random.randint(0, SCREEN_HEIGHT), SPEED))
 
 
-def draw_background():
+def draw_play_background():
     # draw white background
     background.fill(WHITE_SNOW)
     # draw the two blue stripes that represent out of bounds
@@ -60,11 +60,11 @@ def draw_background():
                                         TILE_SIZE * SCALE_FACTOR * j))
 
 
-draw_background()
+draw_play_background()
 clock = pygame.time.Clock()
+
 # main game loop
 while True:
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -176,7 +176,7 @@ while True:
     if total_hits >= 2:  # Adjust the threshold as needed
         num_hearts -= 1
         total_hits = 0  # Reset total_hits
-        if num_hearts < 0:
+        if num_hearts == 0:
             num_hearts = 0  # Ensure num_hearts doesn't go negative
             pygame.quit()
             sys.exit()
