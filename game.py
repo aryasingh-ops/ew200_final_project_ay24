@@ -1,5 +1,7 @@
 import pygame
 import sys
+
+import player_two
 from obstacle import Tree, trees, RedFlag, flags, BlueBlocker, blue_block, Snowman, snowman
 import skier
 import random
@@ -15,19 +17,26 @@ blue_snow = pygame.image.load("ski_assets/ski_images/tile_0027.png").convert()
 
 full_health = pygame.image.load("ski_assets/ski_images/corazon.png").convert()
 full_health.set_colorkey((0, 0, 0))
-new_size = (50 * SCALE_FACTOR, 55 * SCALE_FACTOR)
+new_size = (50, 55)
 full_health_resized = pygame.transform.scale(full_health, new_size)
 heart_positions = [(0, 35), (35, 35), (70, 35)]
 num_hearts = len(heart_positions)
 
-home_button = pygame.image.load("ski_assets/ski_images/HomeButton.png").convert()
+home_button = pygame.image.load("ski_assets/ski_images/tile_0074.png").convert()
 home_button.set_colorkey((0, 0, 0))
-new_size_home = (50 * SCALE_FACTOR, 55 * SCALE_FACTOR)
-home_resized = pygame.transform.scale(home_button, new_size)
+new_size_home = (30, 35)
+home_resized = pygame.transform.scale(home_button, new_size_home)
+
+player_two_button = pygame.image.load("ski_assets/ski_images/tile_0083.png").convert()
+player_two_button.set_colorkey((0, 0, 0))
+new_player_button = (30, 35)
+player_resized = pygame.transform.scale(player_two_button, new_player_button)
 
 game_font = pygame.font.Font("ski_assets/ski_fonts/Print.ttf", 36)
 
 my_skier = skier.SkiBoi(SKIER_WIDTH, SKIER_HEIGHT)
+my_player = player_two.SkiTwo(PLAYER_WIDTH, SCREEN_HEIGHT)
+
 my_trees = Tree(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
 trees.add(my_trees)
 for _ in range(NUM_TREES):
@@ -179,8 +188,8 @@ while True:
         if heart < num_hearts:
             screen.blit(full_health_resized, heart_positions[heart])
 
-    paused = False
-    home = game_font.render("settings", True, (39, 48, 145))
+    paused = True
+    home = game_font.render("10s PAUSE", True, (39, 48, 145))
     screen.blit(home, (10, 85))
     screen.blit(home_resized, (10, 115))
     for event in pygame.event.get():
@@ -189,12 +198,41 @@ while True:
             button_rect = home_resized.get_rect(topleft=(10, 115))
 
             if button_rect.collidepoint(mouse_pos):
-                if not paused:
-                    pygame.time.wait(1000)
+                if paused:
+                    pygame.time.wait(10000)  # 1000 ms = 1s
                     print("Game Paused")
                 else:
                     print("Game Resumed")
-                paused = not paused  # Toggle the pause state
+                paused = paused
+
+    player_text = game_font.render("ADD PLAYER", True, (39, 48, 145))
+    screen.blit(player_text, (10, 155))
+    screen.blit(player_resized, (10, 195))
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            player_button_rect = player_resized.get_rect(topleft=(10, 195))
+            if player_button_rect.collidepoint(mouse_pos):
+                my_player.update()
+                my_player.draw(screen)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        my_player.moving_left = True
+                    if event.key == pygame.K_d:
+                        my_player.moving_right = True
+                    if event.key == pygame.K_w:
+                        my_player.moving_up = True
+                    if event.key == pygame.K_s:
+                        my_player.moving_down = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_a:
+                        my_player.moving_left = False
+                    if event.key == pygame.K_d:
+                        my_player.moving_right = False
+                    if event.key == pygame.K_w:
+                        my_player.moving_up = False
+                    if event.key == pygame.K_s:
+                        my_player.moving_down = False
 
     if total_hits >= 2:  # Adjust the threshold as needed
         num_hearts -= 1
