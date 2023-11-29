@@ -1,6 +1,5 @@
 import pygame
 import sys
-
 import player_two
 from obstacle import Tree, trees, RedFlag, flags, BlueBlocker, blue_block, Snowman, snowman
 import skier
@@ -36,6 +35,7 @@ game_font = pygame.font.Font("ski_assets/ski_fonts/Print.ttf", 36)
 
 my_skier = skier.SkiBoi(SKIER_WIDTH, SKIER_HEIGHT)
 my_player = player_two.SkiTwo(PLAYER_WIDTH, SCREEN_HEIGHT)
+my_player_active = False
 
 my_trees = Tree(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), SPEED)
 trees.add(my_trees)
@@ -102,33 +102,61 @@ while True:
                 my_skier.moving_up = False
             if event.key == pygame.K_DOWN:
                 my_skier.moving_down = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            player_button_rect = player_resized.get_rect(topleft=(10, 195))
+            if player_button_rect.collidepoint(mouse_pos):
+                my_player_active = True
+        if my_player_active:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    my_player.moving_left = True
+                if event.key == pygame.K_d:
+                    my_player.moving_right = True
+                if event.key == pygame.K_w:
+                    my_player.moving_up = True
+                if event.key == pygame.K_s:
+                    my_player.moving_down = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    my_player.moving_left = False
+                if event.key == pygame.K_d:
+                    my_player.moving_right = False
+                if event.key == pygame.K_w:
+                    my_player.moving_up = False
+                if event.key == pygame.K_s:
+                    my_player.moving_down = False
+
         clock.tick(60)
     # draw and display screen
     my_skier.update()
     screen.blit(background, (0, 0))
     my_skier.draw(screen)
+    if my_player_active:
+        my_player.update()
+        my_player.draw(screen)
 
     trees.draw(screen)
     trees.update()
-    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+    if random.randint(0, 100) < 5:
         new_trees = Tree(random.randint(0, SCREEN_WIDTH), SCREEN_HEIGHT, SPEED)
         my_trees.add(trees)
 
     flags.draw(screen)
     flags.update()
-    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+    if random.randint(0, 100) < 5:
         new_flags = RedFlag(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
         my_flags.add(flags)
 
     blue_block.draw(screen)
     blue_block.update()
-    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+    if random.randint(0, 100) < 5:
         new_blocks = BlueBlocker(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
         my_blocks.add(blue_block)
 
     snowman.draw(screen)
     snowman.update()
-    if random.randint(0, 100) < 5:  # Adjust the probability as needed
+    if random.randint(0, 100) < 5:
         new_snowman = Snowman(random.randint(OUTBOUND_WIDTH, SCREEN_WIDTH - OUTBOUND_WIDTH), SCREEN_HEIGHT, SPEED)
         my_snowman.add(snowman)
 
@@ -203,36 +231,10 @@ while True:
                     print("Game Paused")
                 else:
                     print("Game Resumed")
-                paused = paused
 
     player_text = game_font.render("ADD PLAYER", True, (39, 48, 145))
     screen.blit(player_text, (10, 155))
     screen.blit(player_resized, (10, 195))
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            player_button_rect = player_resized.get_rect(topleft=(10, 195))
-            if player_button_rect.collidepoint(mouse_pos):
-                my_player.update()
-                my_player.draw(screen)
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_a:
-                        my_player.moving_left = True
-                    if event.key == pygame.K_d:
-                        my_player.moving_right = True
-                    if event.key == pygame.K_w:
-                        my_player.moving_up = True
-                    if event.key == pygame.K_s:
-                        my_player.moving_down = True
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_a:
-                        my_player.moving_left = False
-                    if event.key == pygame.K_d:
-                        my_player.moving_right = False
-                    if event.key == pygame.K_w:
-                        my_player.moving_up = False
-                    if event.key == pygame.K_s:
-                        my_player.moving_down = False
 
     if total_hits >= 2:  # Adjust the threshold as needed
         num_hearts -= 1
