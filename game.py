@@ -83,11 +83,10 @@ def draw_play_background():
 
 draw_play_background()
 clock = pygame.time.Clock()
-single_game_over = False
-duo_game_over = False
+game_over = False
 # main game loop
 
-while True:
+while not game_over:
     background_music.play()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -203,7 +202,7 @@ while True:
             total_hits = 0  # Reset total_hits
             if num_player_hearts == 0:
                 num_player_hearts = 0  # Ensure num_hearts doesn't go negative
-                duo_game_over = True
+                game_over = True
 
         score_text = game_font.render(f"SCORE: {PLAYER_SCORE}", True, (39, 48, 145))
         screen.blit(score_text, (570, 10))
@@ -214,10 +213,13 @@ while True:
 
     trees.draw(screen)
     trees.update()
+    # If the random number is less than 5, create a new tree at a random x coordinate, at the top of the screen,
+    # and with a specified speed (SPEED)
     if random.randint(0, 100) < 5:
         new_trees = Tree(random.randint(0, SCREEN_WIDTH), SCREEN_HEIGHT, SPEED)
         my_trees.add(trees)
-
+    # Adjusting the 5 to a different value would change the probability
+    # 5 is used based on the frequency of new trees appearing in the game.
     flags.draw(screen)
     flags.update()
     if random.randint(0, 100) < 5:
@@ -244,14 +246,22 @@ while True:
 
     hit_trees = pygame.sprite.spritecollide(my_skier, trees, False)
     for tree in hit_trees:
+        # Check if the rectangular bounding box of the skier intersects with the tree's bounding box
         if my_skier.rect.colliderect(tree.rect):
+            # Adjust the skiers position to resolve the collision
+            # Check if the skier is to the left or right of the center of the tree horizontally
             if my_skier.x < tree.rect.centerx:
+                # If to the left, move the skier to the left
                 my_skier.x -= my_skier.velocity
             else:
+                # If to the right, move the skier to the right
                 my_skier.x += my_skier.velocity
+            # Check if the skier is above or below the center of the tree vertically
             if my_skier.y < tree.rect.centery:
+                # If above, move the skier upwards
                 my_skier.y -= my_skier.velocity
             else:
+                # If below, move the skier downwards
                 my_skier.y += my_skier.velocity
 
     if len(hit_trees) > 0:
@@ -295,12 +305,12 @@ while True:
     screen.blit(player_text, (10, 155))
     screen.blit(player_resized, (10, 195))
 
-    if total_hits >= 1:  # Adjust the threshold as needed
+    if total_hits >= 2:  # Adjust the threshold as needed
         num_hearts -= 1
         total_hits = 0  # Reset total_hits
         if num_hearts == 0:
             num_hearts = 0  # Ensure num_hearts doesn't go negative
-            single_game_over = True
+            game_over = True
 
     score_text = game_font.render(f"SCORE: {SCORE}", True, (39, 48, 145))
     screen.blit(score_text, (10, 10))
@@ -308,24 +318,33 @@ while True:
         if heart < num_hearts:
             screen.blit(full_health_resized, heart_positions[heart])
 
-    if single_game_over:
-        screen.fill((177, 222, 242))
-        end_font = pygame.font.Font(None, 48)
-        end_text = end_font.render(f"Game Over - Final Score: {SCORE}", True, (39, 48, 145))
-        screen.blit(end_text, (150, 175))
-    if duo_game_over:
-        screen.fill((177, 222, 242))
-        end_font = pygame.font.Font(None, 48)
-        ski_results = end_font.render(f"Game Over - Player 1 Score: {SCORE}", True, (39, 48, 145))
-        player_results = end_font.render(f"Player 2 Score: {PLAYER_SCORE}", True, (39, 48, 145))
-        if SCORE > PLAYER_SCORE:
-            game_result = end_font.render(f"Player 1 Wins!", True, (39, 48, 145))
-        else:
-            game_result = end_font.render(f"Player 2 Wins!", True, (39, 48, 145))
-        screen.blit(ski_results, (150, 175))
-        screen.blit(player_results, (150, 275))
-        screen.blit(game_result, (150, 75))
-
     clock.tick(60)
     pygame.display.update()
     pygame.display.flip()
+
+if not my_player_active:
+    screen.fill((177, 222, 242))
+    end_font = pygame.font.Font(None, 48)
+    end_text = end_font.render(f"Game Over - Final Score: {SCORE}", True, (39, 48, 145))
+    screen.blit(end_text, (150, 175))
+else:
+    screen.fill((177, 222, 242))
+    end_font = pygame.font.Font(None, 48)
+    game_over = end_font.render(f"Game Over", True, (39, 48, 145))
+    ski_results = end_font.render(f"Player 1 Score: {SCORE}", True, (39, 48, 145))
+    player_results = end_font.render(f"Player 2 Score: {PLAYER_SCORE}", True, (39, 48, 145))
+    if SCORE > PLAYER_SCORE:
+        game_result = end_font.render(f"Player 1 Wins!", True, (39, 48, 145))
+    else:
+        game_result = end_font.render(f"Player 2 Wins!", True, (39, 48, 145))
+    screen.blit(ski_results, (150, 220))
+    screen.blit(player_results, (150, 275))
+    screen.blit(game_over, (150, 65))
+    screen.blit(game_result, (150, 120))
+
+pygame.display.update()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
